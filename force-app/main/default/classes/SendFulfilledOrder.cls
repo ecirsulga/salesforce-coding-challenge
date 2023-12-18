@@ -4,11 +4,34 @@
 
 public without sharing class SendFulfilledOrder {
 
-    @InvocableMethod(Label='SendFulfilledOrderById' Description='Gets required data from Orders and send them to NPS API.')
-    public static void sendRecords(List<Id> orderIds){
+    @InvocableMethod(Label='SendFulfilledOrderById' Description='Gets required data from Orders and sends them to NPS API.')
+    public static void sendRecords(List<Id> orderIds) {
         if (!orderIds.isEmpty()) {
-            sendRecordsAsyncCallout(orderIds);
+            // Split the orderIds into batches of 30 and send each batch
+            List<List<Id>> orderBatches = splitListIntoBatches(orderIds, 30);
+            for (List<Id> batch : orderBatches) {
+                sendRecordsAsyncCallout(batch);
+            }
         }
+    }
+    private static List<List<Id>> splitListIntoBatches(List<Id> inputList, Integer batchSize) {
+        List<List<Id>> batches = new List<List<Id>>();
+        List<Id> currentBatch = new List<Id>();
+
+        for (Id id : inputList) {
+            currentBatch.add(id);
+
+            if (currentBatch.size() >= batchSize) {
+                batches.add(currentBatch);
+                currentBatch = new List<Id>();
+            }
+        }
+
+        if (currentBatch.size() > 0) {
+            batches.add(currentBatch);
+        }
+
+        return batches;
     }
     private static List<Order> getFulfilledOrders(List<Id> orderIds) {
         return [SELECT Id, OrderNumber, Status, BillToContact.Email
