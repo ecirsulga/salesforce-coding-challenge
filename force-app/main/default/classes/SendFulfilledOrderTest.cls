@@ -14,7 +14,7 @@ private class SendFulfilledOrderTest {
             this.body = body;
         }
 
-        public HTTPResponse respond(HTTPRequest req) {
+        public HttpResponse respond(HttpRequest req) {
 
             HttpResponse res = new HttpResponse();
             res.setHeader('Content-Type', 'application/json');
@@ -244,6 +244,7 @@ private class SendFulfilledOrderTest {
     static void testSubmitQueryToSAPCatchBlock(){
 
         //We are not returning anything from an InvocableMethod and we dont make any changes in records so the testing I made may not show the real world scenarios
+        String responseBodyMock = '{Internal Server Error}';
         Test.startTest();
         List<Id> orderIds=new List<Id>();
         List<Order> testOrders = [SELECT Id, Status FROM Order WHERE Status = 'Fulfilled' LIMIT 1];
